@@ -2,6 +2,7 @@ package nat
 
 import (
 	"net"
+	"sync"
 	"time"
 
 	"github.com/huin/goupnp"
@@ -13,9 +14,10 @@ var (
 	_ NAT = (*upnp_NAT)(nil)
 )
 
-func discoverUPNP_IG1() <-chan NAT {
+func discoverUPNP_IG1(wg *sync.WaitGroup) <-chan NAT {
 	res := make(chan NAT, 1)
 	go func() {
+		defer wg.Done()
 
 		// find devices
 		devs, err := goupnp.DiscoverDevices(internetgateway1.URN_WANConnectionDevice_1)
@@ -62,9 +64,10 @@ func discoverUPNP_IG1() <-chan NAT {
 	return res
 }
 
-func discoverUPNP_IG2() <-chan NAT {
+func discoverUPNP_IG2(wg *sync.WaitGroup) <-chan NAT {
 	res := make(chan NAT, 1)
 	go func() {
+		defer wg.Done()
 
 		// find devices
 		devs, err := goupnp.DiscoverDevices(internetgateway2.URN_WANConnectionDevice_2)

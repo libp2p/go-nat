@@ -2,10 +2,12 @@
 package nat
 
 import (
+	"context"
 	"errors"
 	"math"
 	"math/rand"
 	"net"
+	"sync"
 	"time"
 )
 
@@ -35,16 +37,26 @@ type NAT interface {
 }
 
 // DiscoverGateway attempts to find a gateway device.
-func DiscoverGateway() (NAT, error) {
+func DiscoverGateway(ctx context.Context) (NAT, error) {
+	wg := new(sync.WaitGroup)
+	wg.Add(3) // one for each discover routine
+	wgDone := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(wgDone)
+	}()
+
 	select {
-	case nat := <-discoverUPNP_IG1():
+	case nat := <-discoverUPNP_IG1(wg):
 		return nat, nil
-	case nat := <-discoverUPNP_IG2():
+	case nat := <-discoverUPNP_IG2(wg):
 		return nat, nil
-	case nat := <-discoverNATPMP():
+	case nat := <-discoverNATPMP(wg):
 		return nat, nil
-	case <-time.After(10 * time.Second):
+	case <-wgDone:
 		return nil, ErrNoNATFound
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
 }
 

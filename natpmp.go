@@ -2,6 +2,7 @@ package nat
 
 import (
 	"net"
+	"sync"
 	"time"
 
 	"github.com/jackpal/gateway"
@@ -12,14 +13,15 @@ var (
 	_ NAT = (*natpmpNAT)(nil)
 )
 
-func discoverNATPMP() <-chan NAT {
+func discoverNATPMP(wg *sync.WaitGroup) <-chan NAT {
 	res := make(chan NAT, 1)
-
-	ip, err := gateway.DiscoverGateway()
-	if err == nil {
-		go discoverNATPMPWithAddr(res, ip)
-	}
-
+	go func() {
+		defer wg.Done()
+		ip, err := gateway.DiscoverGateway()
+		if err == nil {
+			discoverNATPMPWithAddr(res, ip)
+		}
+	}()
 	return res
 }
 
