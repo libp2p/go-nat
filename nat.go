@@ -48,6 +48,7 @@ func DiscoverNATs(ctx context.Context) <-chan NAT {
 		upnpIg2 := discoverUPNP_IG2(ctx)
 		natpmp := discoverNATPMP(ctx)
 		upnpGenIGDev := discoverUPNP_GenIGDev(ctx)
+		pcp := discoverPCP()
 		for upnpIg1 != nil || upnpIg2 != nil || natpmp != nil || upnpGenIGDev != nil {
 			var (
 				nat NAT
@@ -69,6 +70,10 @@ func DiscoverNATs(ctx context.Context) <-chan NAT {
 			case nat, ok = <-natpmp:
 				if !ok {
 					natpmp = nil
+				}
+			case nat, ok = <-pcp:
+				if !ok {
+					pcp = nil
 				}
 			case <-ctx.Done():
 				// timeout.
