@@ -7,4 +7,12 @@ require (
 	github.com/libp2p/go-netroute v0.1.2
 )
 
-go 1.16
+require (
+	github.com/google/gopacket v1.1.17 // indirect
+	github.com/libp2p/go-sockaddr v0.0.2 // indirect
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
+	golang.org/x/sys v0.0.0-20190405154228-4b34438f7a67 // indirect
+	golang.org/x/text v0.3.0 // indirect
+)
+
+go 1.17
