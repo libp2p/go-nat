@@ -118,7 +118,8 @@ func DiscoverGateway(ctx context.Context) (NAT, error) {
 	return bestNAT, nil
 }
 
+var random = rand.New(rand.NewSource(time.Now().UnixNano()))
+
 func randomPort() int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(math.MaxUint16-10000) + 10000
+	return random.Intn(math.MaxUint16-10000) + 10000
 }
