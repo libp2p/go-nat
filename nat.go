@@ -29,10 +29,10 @@ type NAT interface {
 	GetInternalAddress() (addr net.IP, err error)
 
 	// AddPortMapping maps a port on the local host to an external port.
-	AddPortMapping(protocol string, internalPort int, description string, timeout time.Duration) (mappedExternalPort int, err error)
+	AddPortMapping(ctx context.Context, protocol string, internalPort int, description string, timeout time.Duration) (mappedExternalPort int, err error)
 
 	// DeletePortMapping removes a port mapping.
-	DeletePortMapping(protocol string, internalPort int) (err error)
+	DeletePortMapping(ctx context.Context, protocol string, internalPort int) (err error)
 }
 
 // DiscoverNATs returns all NATs discovered in the network.

@@ -211,8 +211,8 @@ func discoverUPNP_GenIGDev(ctx context.Context) <-chan NAT {
 
 type upnp_NAT_Client interface {
 	GetExternalIPAddress() (string, error)
-	AddPortMapping(string, uint16, string, uint16, string, bool, string, uint32) error
-	DeletePortMapping(string, uint16, string) error
+	AddPortMappingCtx(context.Context, string, uint16, string, uint16, string, bool, string, uint32) error
+	DeletePortMappingCtx(context.Context, string, uint16, string) error
 }
 
 type upnp_NAT struct {
@@ -247,7 +247,7 @@ func mapProtocol(s string) string {
 	}
 }
 
-func (u *upnp_NAT) AddPortMapping(protocol string, internalPort int, description string, timeout time.Duration) (int, error) {
+func (u *upnp_NAT) AddPortMapping(ctx context.Context, protocol string, internalPort int, description string, timeout time.Duration) (int, error) {
 	ip, err := u.GetInternalAddress()
 	if err != nil {
 		return 0, nil
@@ -256,7 +256,7 @@ func (u *upnp_NAT) AddPortMapping(protocol string, internalPort int, description
 	timeoutInSeconds := uint32(timeout / time.Second)
 
 	if externalPort := u.ports[internalPort]; externalPort > 0 {
-		err = u.c.AddPortMapping("", uint16(externalPort), mapProtocol(protocol), uint16(internalPort), ip.String(), true, description, timeoutInSeconds)
+		err = u.c.AddPortMappingCtx(ctx, "", uint16(externalPort), mapProtocol(protocol), uint16(internalPort), ip.String(), true, description, timeoutInSeconds)
 		if err == nil {
 			return externalPort, nil
 		}
@@ -264,7 +264,7 @@ func (u *upnp_NAT) AddPortMapping(protocol string, internalPort int, description
 
 	for i := 0; i < 3; i++ {
 		externalPort := randomPort()
-		err = u.c.AddPortMapping("", uint16(externalPort), mapProtocol(protocol), uint16(internalPort), ip.String(), true, description, timeoutInSeconds)
+		err = u.c.AddPortMappingCtx(ctx, "", uint16(externalPort), mapProtocol(protocol), uint16(internalPort), ip.String(), true, description, timeoutInSeconds)
 		if err == nil {
 			u.ports[internalPort] = externalPort
 			return externalPort, nil
@@ -274,10 +274,10 @@ func (u *upnp_NAT) AddPortMapping(protocol string, internalPort int, description
 	return 0, err
 }
 
-func (u *upnp_NAT) DeletePortMapping(protocol string, internalPort int) error {
+func (u *upnp_NAT) DeletePortMapping(ctx context.Context, protocol string, internalPort int) error {
 	if externalPort := u.ports[internalPort]; externalPort > 0 {
 		delete(u.ports, internalPort)
-		return u.c.DeletePortMapping("", uint16(externalPort), mapProtocol(protocol))
+		return u.c.DeletePortMappingCtx(ctx, "", uint16(externalPort), mapProtocol(protocol))
 	}
 
 	return nil
