@@ -43,12 +43,9 @@ func discoverUPNP_IG1(ctx context.Context) <-chan NAT {
 						RootDevice: dev.Root,
 						Service:    srv,
 					}}
-					_, isNat, err := client.GetNATRSIPStatusCtx(ctx)
-					if err == nil && isNat {
-						select {
-						case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG1-IP1)", dev.Root}:
-						case <-ctx.Done():
-						}
+					select {
+					case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG1-IP1)", dev.Root}:
+					case <-ctx.Done():
 					}
 
 				case internetgateway1.URN_WANPPPConnection_1:
@@ -57,14 +54,10 @@ func discoverUPNP_IG1(ctx context.Context) <-chan NAT {
 						RootDevice: dev.Root,
 						Service:    srv,
 					}}
-					_, isNat, err := client.GetNATRSIPStatusCtx(ctx)
-					if err == nil && isNat {
-						select {
-						case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG1-PPP1)", dev.Root}:
-						case <-ctx.Done():
-						}
+					select {
+					case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG1-PPP1)", dev.Root}:
+					case <-ctx.Done():
 					}
-
 				}
 			})
 		}
@@ -100,12 +93,9 @@ func discoverUPNP_IG2(ctx context.Context) <-chan NAT {
 						RootDevice: dev.Root,
 						Service:    srv,
 					}}
-					_, isNat, err := client.GetNATRSIPStatusCtx(ctx)
-					if err == nil && isNat {
-						select {
-						case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG2-IP1)", dev.Root}:
-						case <-ctx.Done():
-						}
+					select {
+					case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG2-IP1)", dev.Root}:
+					case <-ctx.Done():
 					}
 
 				case internetgateway2.URN_WANIPConnection_2:
@@ -114,12 +104,9 @@ func discoverUPNP_IG2(ctx context.Context) <-chan NAT {
 						RootDevice: dev.Root,
 						Service:    srv,
 					}}
-					_, isNat, err := client.GetNATRSIPStatusCtx(ctx)
-					if err == nil && isNat {
-						select {
-						case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG2-IP2)", dev.Root}:
-						case <-ctx.Done():
-						}
+					select {
+					case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG2-IP2)", dev.Root}:
+					case <-ctx.Done():
 					}
 
 				case internetgateway2.URN_WANPPPConnection_1:
@@ -128,12 +115,9 @@ func discoverUPNP_IG2(ctx context.Context) <-chan NAT {
 						RootDevice: dev.Root,
 						Service:    srv,
 					}}
-					_, isNat, err := client.GetNATRSIPStatusCtx(ctx)
-					if err == nil && isNat {
-						select {
-						case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG2-PPP1)", dev.Root}:
-						case <-ctx.Done():
-						}
+					select {
+					case res <- &upnp_NAT{client, make(map[int]int), "UPNP (IG2-PPP1)", dev.Root}:
+					case <-ctx.Done():
 					}
 
 				}
