@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,8 +10,13 @@ import (
 	"github.com/libp2p/go-nat"
 )
 
+const opTimeout = 10 * time.Second
+
 func main() {
-	nat, err := nat.DiscoverGateway()
+	ctx, cancel := context.WithTimeout(context.Background(), opTimeout)
+	defer cancel()
+
+	nat, err := nat.DiscoverGateway(ctx)
 	if err != nil {
 		log.Fatalf("error: %s", err)
 	}
@@ -34,7 +40,10 @@ func main() {
 	}
 	log.Printf("external address: %s", eaddr)
 
-	eport, err := nat.AddPortMapping("tcp", 3080, "http", 60)
+	mapCtx, mapCancel := context.WithTimeout(context.Background(), opTimeout)
+	defer mapCancel()
+
+	eport, err := nat.AddPortMapping(mapCtx, "tcp", 3080, "http", 60*time.Second)
 	if err != nil {
 		log.Fatalf("error: %s", err)
 	}
@@ -45,14 +54,20 @@ func main() {
 		for {
 			time.Sleep(30 * time.Second)
 
-			_, err = nat.AddPortMapping("tcp", 3080, "http", 60)
+			refreshCtx, refreshCancel := context.WithTimeout(context.Background(), opTimeout)
+			_, err = nat.AddPortMapping(refreshCtx, "tcp", 3080, "http", 60*time.Second)
+			refreshCancel()
 			if err != nil {
 				log.Fatalf("error: %s", err)
 			}
 		}
 	}()
 
-	defer nat.DeletePortMapping("tcp", 3080)
+	defer func() {
+		delCtx, delCancel := context.WithTimeout(context.Background(), opTimeout)
+		defer delCancel()
+		nat.DeletePortMapping(delCtx, "tcp", 3080)
+	}()
 
 	http.ListenAndServe(":3080", http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "text/plain")
